@@ -1,8 +1,5 @@
 /*
 Задание
-
-1. Сделать картинки для яблок и для мин*****
- 1.1 Доделать проверку перса для 4 вариантов*****
 2.2 режим паузы
 3. Сделать полоску со здоровьем пакмана
 */
@@ -11,6 +8,7 @@
 #include <ctime> 
 #include <iostream>
 #include "pacman.h"
+#include "util.h"
 
 int score = 0;
 using namespace std;
@@ -37,13 +35,6 @@ Color items[colorCount] {
 };
 
 
-float Distance(Vector2f a, Vector2f b) {
-	float ax = a.x - b.x;
-	float ay = a.y - b.y;
-	//квадратный корень
-	float r = sqrt(ax*ax + ay*ay);
-	return r;
-}
 
 
 struct GameScene {
