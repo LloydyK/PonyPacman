@@ -10,12 +10,11 @@
 #include <SFML/Graphics.hpp>
 #include <ctime> 
 #include <iostream>
+#include "pacman.h"
 
 int score = 0;
 using namespace std;
 using namespace sf;
-float vx = 0.05; //горизонтальная скорость
-float vy = 0.05; //вертикальная скротость
 int lastI = 0;
 
 const int colorCount = 13;
@@ -35,16 +34,9 @@ Color items[colorCount] {
 	Color(255,205,210),
 	Color(248,187,208),
 	Color(178,235,242)
-
 };
 
-enum Dir {
-	NONE = 0,
-	LEFT = 1,
-	RIGHT = 2,
-	UP = 3,
-	DOWN = 4
-};
+
 float Distance(Vector2f a, Vector2f b) {
 	float ax = a.x - b.x;
 	float ay = a.y - b.y;
@@ -53,45 +45,6 @@ float Distance(Vector2f a, Vector2f b) {
 	return r;
 }
 
-struct Pacman {
-	float x;
-	float y;
-	float radius;
-	bool isHungry;
-	Dir moveDir;
-
-	void checkBorder(float xLeft, float yTop, float xRight, float yBottom) {
-		if (y > yBottom - radius) {
-			y = yBottom - radius;			
-		}
-		else if (y < yTop) {
-			y = yTop;
-		}
-		if (x < xLeft) {
-			x = xLeft;
-		}
-		else if (x > xRight - radius) {
-			x = xRight - radius;
-		}
-	}
-	
-	void changeDir(int newDir) {
-		moveDir = (Dir)newDir;
-	}
-
-	void move() {
-
-		if (moveDir == Dir::LEFT) { x -= vx; }
-		if (moveDir == Dir::RIGHT) { x += vx; }
-		if (moveDir == Dir::UP) { y -= vy; }
-		if (moveDir == Dir::DOWN) { y += vy; }
-	}
-
-	void setPosition(float dx, float dy) {
-		x += dx;
-		y += dy;
-	}
-};
 
 struct GameScene {
 	float HpRadiusX = 25;
@@ -278,31 +231,31 @@ struct GameScene {
 				mine[i].setPosition(getRandPosition());
 				changeradius(radius, -1);
 			};*/
-bool CanMove(Pacman & pacman, RenderWindow & window, float vx, float vy, Dir mDir ) {
+bool CanMove(Pacman & pacman, RenderWindow & window, Dir mDir ) {
 	
 	float x = pacman.x + pacman.radius;
 	float y = pacman.y + pacman.radius;
 	//cout << x <<"     "<< vx << endl;
 	if (mDir == RIGHT) { 
-		float tochP = x + vx + pacman.radius;
+		float tochP = x + Pacman::vx + pacman.radius;
 		if ( tochP > window.getSize().x) {
 			return false;
 		}
 	}
 	if (mDir == LEFT) {
-		float tochP = x - vx - pacman.radius;
+		float tochP = x - Pacman::vx - pacman.radius;
 		if (0 > tochP) {
 			return false;
 		}
 	}
 	if (mDir == UP) {
-		float tochP = y - vy - pacman.radius;
+		float tochP = y - Pacman::vy - pacman.radius;
 		if (tochP < 0) {
 			return false;
 		}
 	}
 	if (mDir == DOWN) {
-		float tochP = y + vy + pacman.radius;
+		float tochP = y + Pacman::vy + pacman.radius;
 		if (window.getSize().y < tochP) {
 			return false;
 		}
@@ -410,22 +363,22 @@ int main()
 				}
 				scene.fon.setTexture(&fon);
 				if (event.key.code == Keyboard::Key::Left) {
-					if (CanMove(pacman, window, vx, vy, Dir::LEFT)) {
+					if (CanMove(pacman, window, Dir::LEFT)) {
 						pacman.changeDir(Dir::LEFT);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Right) {
-					if (CanMove(pacman, window, vx, vy, Dir::RIGHT)) {
+					if (CanMove(pacman, window, Dir::RIGHT)) {
 						pacman.changeDir(Dir::RIGHT);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Up) {
-					if (CanMove(pacman, window, vy, vx, Dir::UP)){
+					if (CanMove(pacman, window, Dir::UP)){
 						pacman.changeDir(Dir::UP);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Down) {
-					if (CanMove(pacman, window, vx, vy, Dir::DOWN)) {
+					if (CanMove(pacman, window, Dir::DOWN)) {
 						pacman.changeDir(Dir::DOWN);
 					}
 				}
@@ -436,7 +389,7 @@ int main()
 		}
 
 		//Движение
-		bool test = CanMove(pacman, window, vx, vy, pacman.moveDir);
+		bool test = CanMove(pacman, window, pacman.moveDir);
 		if (test == true) {
 			pacman.move();
 		};
