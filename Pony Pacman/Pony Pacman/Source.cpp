@@ -1,6 +1,6 @@
 /*
 Задание
-2.2 режим паузы
+2.3 Когда в режиме паузы выводить надпись
 3. Сделать полоску со здоровьем пакмана
 */
 
@@ -9,11 +9,11 @@
 #include <iostream>
 #include "pacman.h"
 #include "util.h"
-
+#include "GameScene.h"
 int score = 0;
 using namespace std;
 using namespace sf;
-int lastI = 0;
+
 
 const int colorCount = 13;
 
@@ -37,176 +37,7 @@ Color items[colorCount] {
 
 
 
-struct GameScene {
-	float HpRadiusX = 25;
-	float HpRadiusY = 40;
-	float HpPosX = 25;
-	float HpPosY = 25;
-	int mineCount = 25;
-	CircleShape mine[25];
-	const int applesCount = 4;
-	CircleShape apples[4];
-	RectangleShape HP1, HP2, HP3;
-	RectangleShape krug;
-	RectangleShape fon;
-	Texture pacmans[2];
-	Texture mines[25];
-	Texture appleText[4];
-	int minPacSize = 20;
-	int maxPacSize = 60;
 
-	GameScene(Pacman & item, int fonNum) {
-		krug = RectangleShape(sf::Vector2f(2 * item.radius, 2 * item.radius));
-		krug.setFillColor(Color::White);
-		krug.setPosition(Vector2f(item.x, item.y));
-		HP1 = RectangleShape(Vector2f(HpRadiusX, HpRadiusY));
-		HP1.setFillColor(Color::Red);
-		HP1.setPosition(Vector2f(HpPosX, HpPosY));
-		fon = RectangleShape(sf::Vector2f(500.f, 500.f));
-		fon.setPosition(0, 0);
-
-		if (fonNum == 3) {
-			loadPac(0, "textures/avatar.png");
-			loadPac(1, "textures/avatar.png");
-		}
-		else {
-			loadPac(0, "textures/pacman0.png");
-			loadPac(1, "textures/pacman1.png");
-		}
-		//mineCreateDebug();
-		mineCreate();
-
-
-		appCreate();
-	}
-	void setAvatar(bool isPony, Pacman &pacman) {
-		if (isPony) {
-			loadPac(0, "textures/avatar.png");
-			loadPac(1, "textures/avatar.png");
-		}
-		else {
-			loadPac(0, "textures/pacman0.png");
-			loadPac(1, "textures/pacman1.png");
-		}
-		krug = RectangleShape(sf::Vector2f(2 * pacman.radius, 2 * pacman.radius));
-	}
-	float trim(float value, float min, float max) {
-		if (value <= min) {
-			return min;
-		}
-		if (value >= max) {
-			return max;
-		}
-		return value;
-	}
-	float changeRadius(float radius, int i) {
-		radius = trim(radius + i, minPacSize, maxPacSize);
-		krug.setSize(Vector2f(2 * radius, 2 * radius));
-		return radius;
-	}
-	void loadPac(int index, const char * path) {
-		bool result = pacmans[index].loadFromFile(path);
-		pacmans[index].setSmooth(true);
-	}
-	void loadMine(int index, const char*path) {
-		bool result = mines[index].loadFromFile(path);
-		mines[index].setSmooth(true);
-	}
-	void loadApp(int index, const char*path) {
-		bool result = appleText[index].loadFromFile(path);
-		appleText[index].setSmooth(true);
-	}
-	Vector2f getRandPosition() {
-		return Vector2f(
-			rand() % (500 - 5 * 2),
-			rand() % (500 - 5 * 2));
-	}
-
-	void mineCreate() {
-		for (int i = 0; i < mineCount; i++) {
-			mine[i].setPosition(getRandPosition());
-			mine[i].setFillColor(Color::White);
-			mine[i].setRadius(15.0);
-			loadMine(i, "textures/Homing_Underwater_Mine.png");
-		}
-	}
-
-	void appCreate() {
-		for (int i = 0; i < applesCount; i++) {
-			apples[i].setPosition(getRandPosition());
-			apples[i].setFillColor(Color::White);
-			apples[i].setRadius(15.0);
-			loadApp(i, "textures/yabloko_yopta8.png");
-		}
-	}
-	void mineCreateDebug() {
-		for (int i = 0; i < mineCount; i++) {
-			if (i == 0) {
-				mine[i].setPosition(Vector2f(150, 50));
-			}
-			else {
-				mine[i].setPosition(Vector2f(0, 0));
-			}
-
-			mine[i].setFillColor(Color::Red);
-			mine[i].setRadius(5.0);
-		}
-	}
-	void appDraw(RenderWindow & window) {
-		for (int i = 0; i < applesCount; i++) {
-			window.draw(apples[i]);
-			apples[i].setTexture(&appleText[i]);
-		}
-	}
-	void mineDraw(RenderWindow & window) {
-		for (int i = 0; i < mineCount; i++) {
-			window.draw(mine[i]);
-			mine[i].setTexture(&mines[i]);
-		}
-	}
-	void setView(Pacman & item) {
-		if (item.isHungry) krug.setTexture(&pacmans[0]);
-		else krug.setTexture(&pacmans[1]);
-
-		krug.setPosition(item.x, item.y);
-	}
-
-	void appCheck(Pacman & pacman) {
-		for (int i = 0; i < applesCount; i++) {
-			float appSize = apples[i].getRadius();
-			Vector2f appCenter = apples[i].getPosition();
-			appCenter.x += appSize;
-			appCenter.y += appSize;
-
-			Vector2f pacmanCenter;
-			pacmanCenter.x = pacman.x + pacman.radius;
-			pacmanCenter.y = pacman.y + pacman.radius;
-			bool eat = Distance(appCenter, pacmanCenter) <= (pacman.radius + appSize);
-			if (eat) {
-				pacman.radius = changeRadius(pacman.radius, +2);
-				apples[i].setPosition(getRandPosition());
-			}
-		}
-	}
-
-	void mineCheck(Pacman & pacman) {
-		for (int i = 0; i < mineCount; i++) {
-			float mineSize = mine[i].getRadius();
-			Vector2f mineCenter = mine[i].getPosition();
-			mineCenter.x += mineSize;
-			mineCenter.y += mineSize;
-
-			Vector2f pacmanCenter;
-			pacmanCenter.x = pacman.x + pacman.radius;
-			pacmanCenter.y = pacman.y + pacman.radius;
-			bool eat = Distance(mineCenter, pacmanCenter) <= (pacman.radius + mineSize);
-			if (eat) {
-				pacman.radius = changeRadius(pacman.radius, -2);
-				mine[i].setPosition(getRandPosition());
-			}
-		}
-	}
-};
 		
 	/*void RisovkaMin(const int MineCount, int i) {
 		for (i = 0; i < mineCount; i++) {
@@ -277,6 +108,7 @@ Vector2f getRandPosition() {
 
 
 
+
 int main()
 {
  	setlocale(LC_ALL, "Russian");
@@ -322,11 +154,23 @@ int main()
 				window.close();
 			}
 			else if (event.type == Event::MouseButtonPressed) { }
-		    
-			const int mode = 1; //0 - отладка, 1 - нормальная игра
+
+		    //смена режимов
+
+			const int mode = 1; //0 - отладка, 1 - нормальная игра, 2 - пауза (не доделанна)
+	
+			
+			if (scene.isPressedFirst(Keyboard::Key::P, event)) {
+				scene.SwitchPause();
+			}
+			
+			
+
 			if (event.type == Event::KeyPressed && mode == 0) {
 				float dx = 1;
 				float dy = 1;
+			
+			
 				
 				
 				if (event.key.code == Keyboard::Key::Left) {pacman.setPosition(-dx, 0);}
@@ -380,10 +224,13 @@ int main()
 		}
 
 		//Движение
-		bool test = CanMove(pacman, window, pacman.moveDir);
-		if (test == true) {
-			pacman.move();
-		};
+		if (scene.Pause == false) {
+			bool test = CanMove(pacman, window, pacman.moveDir);
+			if (test == true) {
+				pacman.move();
+			};
+		}
+		
 		//cout << test;
 		if (isEnd == true) {
 			break;
@@ -393,8 +240,9 @@ int main()
 		scene.appCheck(pacman);
 		scene.mineCheck(pacman);
 		scene.setView(pacman);
-		window.draw(scene.HP1);
+		//scene.HPView(pacman, pacman);
 		window.clear();
+		window.draw(scene.HP);
 		window.draw(scene.fon);
 		scene.appDraw(window);
 		scene.mineDraw(window);

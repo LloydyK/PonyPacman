@@ -129,6 +129,7 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameScene.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="pacman.h" />
   </ItemGroup>

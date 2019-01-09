@@ -18,6 +18,7 @@ struct Pacman {
 	float y;
 	float radius;
 	bool isHungry;
+	int isDamaged;
 	Dir moveDir;
 
 	void checkBorder(float xLeft, float yTop, float xRight, float yBottom);
