@@ -10,12 +10,18 @@ enum Dir {
 
 
 struct Pacman {
+	static const int START_LIFE;
 
 	static float vx;
 	static float vy;
 
+
+	//координаты верхнего левого угла
 	float x;
 	float y;
+
+
+	int HP;
 	float radius;
 	bool isHungry;
 	int isDamaged;
@@ -25,4 +31,5 @@ struct Pacman {
 	void changeDir(int newDir);
 	void move();
 	void setPosition(float dx, float dy);
+	bool canMove(const sf::RenderWindow & window, Dir mDir);
 };

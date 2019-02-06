@@ -1,7 +1,8 @@
 /*
 Задание
-2.3 Когда в режиме паузы выводить надпись
-3. Сделать полоску со здоровьем пакмана
+
+	1.2 Залить на гитхуб
+2. Сделать полоску со здоровьем пакмана
 */
 
 #include <SFML/Graphics.hpp>
@@ -53,40 +54,11 @@ Color items[colorCount] {
 				mine[i].setPosition(getRandPosition());
 				changeradius(radius, -1);
 			};*/
-bool CanMove(Pacman & pacman, RenderWindow & window, Dir mDir ) {
-	
-	float x = pacman.x + pacman.radius;
-	float y = pacman.y + pacman.radius;
-	//cout << x <<"     "<< vx << endl;
-	if (mDir == RIGHT) { 
-		float tochP = x + Pacman::vx + pacman.radius;
-		if ( tochP > window.getSize().x) {
-			return false;
-		}
-	}
-	if (mDir == LEFT) {
-		float tochP = x - Pacman::vx - pacman.radius;
-		if (0 > tochP) {
-			return false;
-		}
-	}
-	if (mDir == UP) {
-		float tochP = y - Pacman::vy - pacman.radius;
-		if (tochP < 0) {
-			return false;
-		}
-	}
-	if (mDir == DOWN) {
-		float tochP = y + Pacman::vy + pacman.radius;
-		if (window.getSize().y < tochP) {
-			return false;
-		}
-	}
-	return true;
-}
-bool isHit(RenderWindow & window, Pacman & pacman ) {
-	float x = pacman.x + pacman.radius;
-	float y = pacman.y + pacman.radius;
+
+bool isHit(RenderWindow & window, Pacman & pacman,  GameScene & scene) {
+	float size = 2 * scene.getRadius(pacman);
+	float x = pacman.x + size;
+	float y = pacman.y + size;
     //Определяем лежит ли пакман в пределах экрана
 	if (0 > x - pacman.radius || x + pacman.radius > window.getSize().x ||
 		0 > y - pacman.radius || y + pacman.radius > window.getSize().y) {
@@ -121,6 +93,7 @@ int main()
 	pacman.x = 250 - 100;
 	pacman.y = 100;
 	pacman.radius = 25.f;
+	pacman.HP = Pacman::START_LIFE;
 	pacman.isHungry = true;
 	pacman.moveDir = Dir::NONE;
 	GameScene scene = GameScene(pacman,fonNum);
@@ -198,22 +171,24 @@ int main()
 				}
 				scene.fon.setTexture(&fon);
 				if (event.key.code == Keyboard::Key::Left) {
-					if (CanMove(pacman, window, Dir::LEFT)) {
+					if (pacman.canMove(window, Dir::LEFT)) {
 						pacman.changeDir(Dir::LEFT);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Right) {
-					if (CanMove(pacman, window, Dir::RIGHT)) {
+					if (pacman.canMove(window, Dir::RIGHT)) {
 						pacman.changeDir(Dir::RIGHT);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Up) {
-					if (CanMove(pacman, window, Dir::UP)){
+					if (pacman.canMove(window, Dir::UP)){
 						pacman.changeDir(Dir::UP);
 					}
 				}
 				else if (event.key.code == Keyboard::Key::Down) {
-					if (CanMove(pacman, window, Dir::DOWN)) {
+			
+					//if (pacman.canMove(window, Dir::DOWN)) {
+					if (pacman.canMove( window, Dir::DOWN)) {
 						pacman.changeDir(Dir::DOWN);
 					}
 				}
@@ -225,11 +200,12 @@ int main()
 
 		//Движение
 		if (scene.Pause == false) {
-			bool test = CanMove(pacman, window, pacman.moveDir);
+			bool test = pacman.canMove(window, pacman.moveDir);
 			if (test == true) {
 				pacman.move();
 			};
 		}
+
 		
 		//cout << test;
 		if (isEnd == true) {
@@ -247,6 +223,9 @@ int main()
 		scene.appDraw(window);
 		scene.mineDraw(window);
 		window.draw(scene.krug);
+		if (scene.Pause == true){
+			window.draw(scene.pauseShape);
+		}
 		window.display();
 
 	}

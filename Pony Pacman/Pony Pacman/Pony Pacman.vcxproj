@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClCompile Include="pacman.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
